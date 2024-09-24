@@ -1,0 +1,8 @@
+break on report
+compute sum of MB on report 
+col owner for a30
+select owner, sum(bytes/1024/1024) MB
+from dba_segments
+where owner in (select grantee from dba_role_privs where granted_role='ROL_APLI' and grantee not in ('SYS','SYSTEM'))
+group by owner
+/
