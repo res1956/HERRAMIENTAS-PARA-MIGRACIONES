@@ -1,0 +1,6 @@
+set line 200 pages 3000
+col owner for a15
+col directory_name for a30
+col directory_path for a60
+select * from dba_directories
+/
