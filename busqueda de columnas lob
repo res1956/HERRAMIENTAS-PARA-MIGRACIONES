@@ -1,0 +1,10 @@
+select
+owner, table_name, data_type, count(1) cantidad
+from dba_tab_columns
+where owner  in (select grantee from dba_role_privs where granted_role='ROL_APLI' and grantee not in ('SYS','SYSTEM'))
+and ( data_type in ('LONG','CLOB','BLOB') OR DATA_TYPE LIKE 'TIME%')
+group by owner, table_name, data_type
+/
+
+select distinct DATA_TYPE from dba_tab_columns where  owner in (select grantee from dba_role_privs where granted_role='ROL_APLI' and grantee not in ('SYS','SYSTEM'));
+
