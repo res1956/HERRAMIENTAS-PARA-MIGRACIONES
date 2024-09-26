@@ -1,0 +1,8 @@
+select 
+NAME,
+MOUNT_STATUS,
+MODE_STATUS,
+STATE,
+TOTAL_MB,
+FREE_MB
+from v$asm_disk;
