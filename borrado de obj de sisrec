@@ -1,0 +1,10 @@
+select 'DROP '||object_type||' "'||owner||'"."'|| object_name||'";'
+from dba_objects where owner='SISRECCLTS'
+and object_type not in (
+'INDEX'
+,'PACKAGE BODY'
+,'TRIGGER'
+,'LOB'
+,'TABLE'
+)
+/
