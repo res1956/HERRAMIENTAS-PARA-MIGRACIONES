@@ -1,0 +1,44 @@
+sqlplus -s <<EOF
+/ as sysdba
+set line 2000 pages 0 heading off feed off trimspool on
+spool usuarios_role_grant.txt
+select distinct grantee from dba_role_privs
+where granted_role like 'ROL%'
+and grantee not in ('SYS','SYSTEM','ENACCION','SQLTECH')
+;
+spool off
+EOF
+
+if [ -f usuarios_role_grant.txt ];then
+cat usuarios_role_grant.txt | awk ' { system("reo_dmpusr "$0) } ' > usuarios_reo.txt
+fi
+
+perl -p -i -e "s/identified by values \'\'/identified by enaccion/g" usuarios_reo.txt
+
+
+cat usuarios_reo.txt | grep create | awk  ' { gsub("create user","drop user",$0); print $0" cascade;" } ' > borra_usuarios.txt
+
+sqlplus -s <<EOF
+/ as sysdba
+exec DBMS_METADATA.set_transform_param(DBMS_METADATA.session_transform, 'SQLTERMINATOR', true);
+exec DBMS_METADATA.set_transform_param(DBMS_METADATA.session_transform, 'PRETTY', true);
+set long 90000000 line 2000 pages 3000 echo off feed off heading off trimspool on 
+col texto for a2000 word_wrapped
+spool metadata.usuarios.sql 
+select  dbms_metadata.get_ddl('USER',a.username) texto 
+from
+(select distinct u.username
+from dba_users u
+inner join  dba_role_privs p on u.username=p.grantee
+where p.granted_role like 'ROL%' and u.username not in ('SYS','SYSTEM','ENACCION','SQLTECH')
+order by u.username) a
+/
+spool off
+exit
+EOF
+
+if [ -f metadata.usuarios.sql ];then
+  cat metadata.usuarios.sql | awk ' { if (match($0,"CREATE") && ! match($0,"EXTERNALLY" ) { print "ALTER USER "$3" " $4" "$5" "$6" "$7 } } ' > alter_user.txt
+fi
+
+
