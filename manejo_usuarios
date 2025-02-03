@@ -41,4 +41,9 @@ if [ -f metadata.usuarios.sql ];then
   cat metadata.usuarios.sql | awk ' { if (match($0,"CREATE") && ! match($0,"EXTERNALLY" ) { print "ALTER USER "$3" " $4" "$5" "$6" "$7 } } ' > alter_user.txt
 fi
 
-
+echo "AYUDA"
+echo "====="
+echo ". borrar usuarios"
+echo ". crear usuarios con usuarios_reo"
+echo ". alter usuarios con la password correcta ... alter_user"
+echo "estos tres pasos nos asegurara que los usuarios estan actualizados"
